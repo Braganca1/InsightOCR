@@ -1,5 +1,5 @@
 // backend/src/documents/documents.service.ts
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createWorker } from 'tesseract.js';
 import { join } from 'path';
@@ -53,4 +53,15 @@ export class DocumentsService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+async deleteDocument(id: string, userId: string) {
+  // (optional) ensure the doc belongs to the user
+  const doc = await this.prisma.document.findUnique({ where: { id } });
+  if (!doc || doc.userId !== userId) {
+    throw new NotFoundException('Document not found');
+  }
+  await this.prisma.document.delete({ where: { id } });
+  return { success: true };
+}
+
 }

@@ -1,13 +1,7 @@
 // backend/src/documents/documents.controller.ts
 
 import {
-  Controller,
-  Post,
-  Get,
-  UploadedFile,
-  UseInterceptors,
-  Req,
-} from '@nestjs/common';
+  Controller, Post, Get, UploadedFile, UseInterceptors, Req, Delete, Param } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -46,5 +40,14 @@ export class DocumentsController {
     // same dummy user ID for listing
     const dummyUserId = '00000000-0000-0000-0000-000000000000';
     return this.docsService.findAllByUser(dummyUserId);
+  }
+  
+  @Delete(':id')
+  async remove(
+    @Param('id') id: string,
+    // for now use dummyUserId here too
+  ) {
+    const dummyUserId = '00000000-0000-0000-0000-000000000000';
+    return this.docsService.deleteDocument(id, dummyUserId);
   }
 }
