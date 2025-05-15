@@ -1,5 +1,6 @@
-// backend/src/documents/documents.service.ts
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { promises as fs } from 'fs';
 import { PrismaService } from '../prisma/prisma.service';
 import { createWorker } from 'tesseract.js';
 import { join } from 'path';
@@ -64,4 +65,94 @@ async deleteDocument(id: string, userId: string) {
   return { success: true };
 }
 
+/**
+ * Fetch a single document by id.
+ */
+async findOne(id: string) {
+  const doc = await this.prisma.document.findUnique({
+    where: { id },
+  });
+  if (!doc) {
+    throw new NotFoundException(`Document ${id} not found`);
+  }
+  return doc;
+}
+
+ async generateDownload(id: string) {
+    // 1) Load the document record
+    const doc = await this.prisma.document.findUnique({
+      where: { id },
+      include: { interactions: true },  // assumes you have relation set up
+    });
+    if (!doc) throw new NotFoundException('Document not found');
+
+    // 2) Read original file from disk
+    const filePath = join(process.cwd(), 'uploads', doc.filename);
+    const origBytes = await fs.readFile(filePath);
+
+    // 3) Create a new PDF
+    const pdf = await PDFDocument.create();
+    let origPdf: PDFDocument | null = null;
+
+    // If original is a PDF, embed its pages; otherwise embed as image
+    if (doc.filename.toLowerCase().endsWith('.pdf')) {
+      origPdf = await PDFDocument.load(origBytes);
+      const origPages = await pdf.copyPages(origPdf, origPdf.getPageIndices());
+      origPages.forEach((page) => pdf.addPage(page));
+    } else {
+      // embed image on single page
+      const img = await (doc.filename.match(/\.png$/i)
+        ? pdf.embedPng(origBytes)
+        : pdf.embedJpg(origBytes));
+      const page = pdf.addPage([img.width, img.height]);
+      page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
+    }
+
+    // 4) Append a page with OCR text and interactions
+    const textPage = pdf.addPage();
+    const { width, height } = textPage.getSize();
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    const fontSize = 12;
+    let y = height - 2 * fontSize;
+
+    // Title
+    textPage.drawText('Extracted Text:', { x: 50, y, size: 14, font, color: rgb(0,0,0) });
+    y -= 1.5 * fontSize;
+
+    // OCR text
+    const lines = (doc.extractedText ?? '').split('\n');
+    for (const line of lines) {
+      if (y < 50) {
+        // new page if out of space
+        const p = pdf.addPage();
+        y = p.getSize().height - 2 * fontSize;
+      }
+      textPage.drawText(line, { x: 50, y, size: fontSize, font, color: rgb(0,0,0) });
+      y -= fontSize * 1.2;
+    }
+
+    // Conversations
+    if (doc.interactions.length) {
+      y -= fontSize;
+      textPage.drawText('Conversations:', { x: 50, y, size: 14, font, color: rgb(0,0,0) });
+      y -= 1.5 * fontSize;
+
+      for (const convo of doc.interactions) {
+        const q = `Q: ${convo.question}`;
+        const a = `A: ${convo.answer}`;
+        for (const str of [q, a]) {
+          if (y < 50) {
+            pdf.addPage();
+            y = height - 2 * fontSize;
+          }
+          textPage.drawText(str, { x: 60, y, size: fontSize, font, color: rgb(0,0,0) });
+          y -= fontSize * 1.2;
+        }
+        y -= fontSize * 0.8;
+      }
+    }
+
+    // 5) Serialize
+    return Buffer.from(await pdf.save());
+  }
 }

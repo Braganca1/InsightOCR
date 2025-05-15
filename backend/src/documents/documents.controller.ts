@@ -1,11 +1,10 @@
-// backend/src/documents/documents.controller.ts
-
 import {
-  Controller, Post, Get, UploadedFile, UseInterceptors, Req, Delete, Param } from '@nestjs/common';
+  Controller, Post, Get, UploadedFile, UseInterceptors, Req, Delete, Param, Header, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { DocumentsService } from './documents.service';
+import { Response } from 'express';
 
 @Controller('documents')
 export class DocumentsController {
@@ -35,6 +34,11 @@ export class DocumentsController {
     return this.docsService.processDocument(file, dummyUserId);
   }
 
+  @Get(':id')
+  async getOne(@Param('id') id: string) {
+    return this.docsService.findOne(id);
+  }
+
   @Get()
   list() {
     // same dummy user ID for listing
@@ -49,5 +53,13 @@ export class DocumentsController {
   ) {
     const dummyUserId = '00000000-0000-0000-0000-000000000000';
     return this.docsService.deleteDocument(id, dummyUserId);
+  }
+
+    @Get(':id/download')
+  @Header('Content-Type', 'application/pdf')
+  @Header('Content-Disposition', 'attachment; filename="document.pdf"')
+  async download(@Param('id') id: string, @Res() res: Response) {
+    const pdfBuffer = await this.docsService.generateDownload(id);
+    res.end(pdfBuffer);
   }
 }

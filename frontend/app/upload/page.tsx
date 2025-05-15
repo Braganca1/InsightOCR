@@ -49,22 +49,18 @@ export default function UploadPage() {
       </p>
 
       <div
-        className={`relative mb-6 p-8 border-2 border-dashed rounded-lg cursor-pointer ${
-          dragOver ? 'border-purple-600 bg-purple-50' : 'border-gray-300'
-        }`}
+      className="relative mb-6 p-8 border-2 border-dashed rounded-lg"
         onDragEnter={onDragEnter}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
-        onClick={() => {if (!file) {document.getElementById('file-input')?.click();
-        }
-        }}
       >
         <input
           id="file-input"
           type="file"
           accept="application/pdf,image/*"
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+             disabled={!!file} 
           onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
         />
         <div className="flex flex-col items-center justify-center">
