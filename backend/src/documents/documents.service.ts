@@ -22,7 +22,7 @@ export class DocumentsService {
   });
     // 1) Create DB record
     const doc = await this.prisma.document.create({
-      data: { filename: file.filename, userId },
+      data: {filename: file.filename, originalName: file.originalname,userId},
     });
 
     try {
@@ -55,15 +55,26 @@ export class DocumentsService {
     });
   }
 
-async deleteDocument(id: string, userId: string) {
-  // (optional) ensure the doc belongs to the user
+async deleteDocument(id: string, userId: string): Promise<{ success: boolean }> {
+  // 1) Verify ownership
   const doc = await this.prisma.document.findUnique({ where: { id } });
   if (!doc || doc.userId !== userId) {
     throw new NotFoundException('Document not found');
   }
-  await this.prisma.document.delete({ where: { id } });
+
+  // 2) Delete all chat interactions for this document
+  await this.prisma.interaction.deleteMany({
+    where: { documentId: id },
+  });
+
+  // 3) Now delete the document itself
+  await this.prisma.document.delete({
+    where: { id },
+  });
+
   return { success: true };
 }
+
 
 /**
  * Fetch a single document by id.

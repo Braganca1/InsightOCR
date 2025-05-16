@@ -1,16 +1,17 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import DocumentList from '../../components/DocumentList';
-import UploadForm from '../../components/UploadForm';
 
-interface Doc { id: string; filename: string; extractedText: string; createdAt: string; }
+interface Doc { id: string; filename: string; extractedText: string; createdAt: string; originalName: string; }
 export default function DashboardPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
 
   const fetchDocs = async () => {
     const res = await fetch('/api/documents');
-    setDocs(await res.json());
+    const data: Doc[] = await res.json();
+  setDocs(data);
   };
+
   useEffect(() => { fetchDocs(); }, []);
 
   const handleUpload = async (file: File) => {
@@ -29,7 +30,6 @@ export default function DashboardPage() {
     <>
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">My Documents</h2>
-        <UploadForm onUpload={handleUpload} />
       </div>
 
       {docs.length > 0 ? (

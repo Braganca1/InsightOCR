@@ -5,8 +5,8 @@ const API = process.env.BACKEND_URL || 'http://localhost:3000';
 
 export async function GET() {
   const res = await fetch(`${API}/documents`);
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  const docs = await res.json();
+  return NextResponse.json(docs);
 }
 
 export async function POST(req: NextRequest) {

@@ -4,9 +4,18 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ChatInterface from '../../../components/ChatInterface';
 
-interface Document { id: string; filename: string; extractedText: string; createdAt: string; }
+interface Document {
+  originalName: string;
+  id: string;
+  filename: string;
+  extractedText: string;
+  createdAt: string;
+}
 
-enum TabKey { Original = 'original', Conversations = 'conversations' }
+enum TabKey {
+  Original = 'original',
+  Conversations = 'conversations',
+}
 
 export default function DocumentPage() {
   const { id } = useParams();
@@ -17,31 +26,36 @@ export default function DocumentPage() {
   useEffect(() => {
     if (!id) return;
     fetch(`/api/documents/${id}`)
-      .then((r) => r.json())
-      .then(setDoc);
+      .then((res) => res.json())
+      .then((data: Document) => setDoc(data))
+      .catch(console.error);
   }, [id]);
 
-  if (!doc) return <p className="text-center py-20">Loading document...</p>;
-
-  const downloadUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || ''}/uploads/${doc.filename}`;
+  if (!doc) {
+    return <p className="text-center py-20">Loading document...</p>;
+  }
 
   return (
     <div className="container mx-auto px-6 py-8">
-      {/* Header */}
+      {/* Header area */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">{doc.filename}</h1>
-          <p className="text-gray-500">Uploaded on {new Date(doc.createdAt).toLocaleDateString()}</p>
+          <h1 className="text-3xl font-bold">{doc.originalName}</h1>
+          <p className="text-gray-500">
+            Uploaded on {new Date(doc.createdAt).toLocaleDateString()}
+          </p>
         </div>
         <div className="mt-4 sm:mt-0 space-x-4">
-           <a
-         href={`/api/documents/${doc.id}/download`}
+          {/* Download Button */}
+          <a
+            href={`/api/documents/${doc.id}/download`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100"
           >
             Download
           </a>
+          {/* Back Button */}
           <button
             onClick={() => router.push('/dashboard')}
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100"
@@ -51,13 +65,15 @@ export default function DocumentPage() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs navigation */}
       <div className="border-b border-gray-200 mb-6">
         <nav className="flex -mb-px space-x-4">
           <button
             onClick={() => setActiveTab(TabKey.Original)}
             className={`px-4 py-2 font-medium ${
-              activeTab === TabKey.Original ? 'border-b-2 border-purple-600 text-purple-600' : 'text-gray-600'
+              activeTab === TabKey.Original
+                ? 'border-b-2 border-purple-600 text-purple-600'
+                : 'text-gray-600'
             }`}
           >
             Original Text
@@ -65,15 +81,17 @@ export default function DocumentPage() {
           <button
             onClick={() => setActiveTab(TabKey.Conversations)}
             className={`px-4 py-2 font-medium ${
-              activeTab === TabKey.Conversations ? 'border-b-2 border-purple-600 text-purple-600' : 'text-gray-600'
+              activeTab === TabKey.Conversations
+                ? 'border-b-2 border-purple-600 text-purple-600'
+                : 'text-gray-600'
             }`}
           >
-            Chat history
+            Conversations
           </button>
         </nav>
       </div>
 
-      {/* Content */}
+      {/* Content panels */}
       {activeTab === TabKey.Original ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Extracted Text Card */}
@@ -90,13 +108,13 @@ export default function DocumentPage() {
             <p className="text-gray-600 mb-4">
               Ask questions about the document to get AI-powered insights.
             </p>
-            <ChatInterface documentId={doc.id} />
+            <ChatInterface documentId={doc.id} showHistory={false} />
           </div>
         </div>
       ) : (
         <div className="bg-white p-6 rounded-2xl shadow-md">
           <h2 className="text-xl font-semibold mb-4">Conversations</h2>
-          <ChatInterface documentId={doc.id} />
+          <ChatInterface documentId={doc.id} showHistory={true} />
         </div>
       )}
     </div>

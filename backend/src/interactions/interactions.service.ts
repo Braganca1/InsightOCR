@@ -1,56 +1,44 @@
-// backend/src/interactions/interactions.service.ts
-
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-// default‐import the OpenAI client
-import OpenAI from 'openai';
+import { HfInference } from '@huggingface/inference';
 
 @Injectable()
 export class InteractionsService {
-  private openai: OpenAI;
+  private hf: HfInference;
 
   constructor(private prisma: PrismaService) {
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY, // auto‐loads from your .env
-    });
+    this.hf = new HfInference(
+  process.env.HF_API_TOKEN!);
   }
 
   async askQuestion(documentId: string, question: string, userId: string) {
     // 1) Verify document ownership
     const doc = await this.prisma.document.findUnique({ where: { id: documentId } });
-    if (!doc || doc.userId !== userId) {
-      throw new NotFoundException('Document not found');
-    }
-    if (!doc.extractedText) {
-      throw new NotFoundException('Document text not available yet');
-    }
+    if (!doc || doc.userId !== userId) throw new NotFoundException();
 
-    // 2) Call OpenAI ChatCompletion on the new client
-    const response = await this.openai.chat.completions.create({
-      model: 'tts-1-hd-1106',
-      messages: [
-        { role: 'system', content: 'You are a helpful invoice assistant.' },
-        {
-          role: 'user',
-          content: `
-Here is the invoice text:
-${doc.extractedText}
+    // 2) Build the chat prompt
+    const messages = [
+      { role: 'system', content: 'You are a helpful invoice assistant.' },
+      { role: 'user', content: `Here is the invoice text:\n${doc.extractedText}\n\nUser: ${question}` },
+    ];
 
-User question: ${question}
-          `,
+    let answer: string;
+    try {
+      const res = await this.hf.questionAnswering({
+        model: 'deepset/roberta-base-squad2', // or another QA model available on HuggingFace
+        inputs: {
+          question,
+          context: doc.extractedText ?? '',
         },
-      ],
-    });
+      });
+      answer = res.answer?.trim() ?? 'No answer found.';
+    } catch (err: any) {
+      throw new HttpException(`LLM error: ${err.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
-    const answer = response.choices?.[0]?.message?.content?.trim() ?? '';
-
-    // 3) Persist and return
+    // 3) Persist & return
     return this.prisma.interaction.create({
-      data: {
-        documentId,
-        question,
-        answer,
-      },
+      data: { documentId, question, answer },
     });
   }
 

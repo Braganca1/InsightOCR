@@ -18,6 +18,7 @@ model User {
 
 model Document {
   id            String        @id @default(uuid())
+  originalName  String?
   user          User          @relation(fields: [userId], references: [id])
   userId        String
   filename      String        // original filename or S3 key

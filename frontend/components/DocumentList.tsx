@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-interface Doc { id: string; filename: string; extractedText: string; createdAt: string; }
+interface Doc { id: string; filename: string; originalName: string; extractedText: string; createdAt: string; }
 interface Props { documents: Doc[]; onDelete: (id: string) => void; }
 
 const DocumentList: React.FC<Props> = ({ documents, onDelete }) => (
@@ -12,7 +12,7 @@ const DocumentList: React.FC<Props> = ({ documents, onDelete }) => (
         <div>
           <h3 className="text-lg font-semibold text-gray-800 mb-1">
             <Link href={`/documents/${doc.id}`} className="hover:text-purple-600">
-              {doc.filename}
+              {doc.originalName}
             </Link>
           </h3>
           <p className="text-xs text-gray-500 mb-2">
