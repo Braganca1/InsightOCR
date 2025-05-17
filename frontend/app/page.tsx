@@ -1,4 +1,5 @@
-import Link from 'next/link';
+// frontend/app/page.tsx
+import CTAButtons from '../components/CTAButtons';
 
 export default function HomePage() {
   return (
@@ -13,20 +14,9 @@ export default function HomePage() {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
             Upload your documents, extract text with OCR, and get AI-powered insights and explanations instantly.
           </p>
-          <div className="flex justify-center space-x-4">
-            <Link
-              href="/dashboard"
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-            >
-              My Documents
-            </Link>
-            <Link
-              href="/upload"
-              className="px-6 py-3 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition"
-            >
-              Upload New
-            </Link>
-          </div>
+
+          {/* Dynamic CTA buttons */}
+          <CTAButtons />
         </div>
       </section>
 
@@ -38,6 +28,7 @@ export default function HomePage() {
         <p className="text-center text-gray-600 mb-12">
           Simple, powerful document processing in three easy steps
         </p>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Step 1: Upload */}
           <div className="bg-white p-8 rounded-2xl shadow-md text-center">
@@ -49,7 +40,7 @@ export default function HomePage() {
             </div>
             <h3 className="font-semibold text-lg mb-2">Upload</h3>
             <p className="text-gray-600">
-              Upload your documents in various formats including JPEG, PNG.
+              Upload your documents in various formats including PDF, JPEG, PNG, and TIFF.
             </p>
           </div>
 
