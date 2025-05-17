@@ -10,7 +10,9 @@ export async function GET(
 ) {
   const { id } = context.params;
   try {
-    const res = await fetch(`${API}/documents/${id}`);
+     const res = await fetch(`${API}/documents/${id}`, {
+       headers: { cookie: req.headers.get('cookie')! },
+       credentials: 'include', });
     if (!res.ok) {
       const text = await res.text();
       return NextResponse.json({ error: text }, { status: res.status });
@@ -29,7 +31,9 @@ export async function DELETE(
 ) {
   const { id } = context.params;
   try {
-    const res = await fetch(`${API}/documents/${id}`, { method: 'DELETE' });
+     const res = await fetch(`${API}/documents/${id}`, {
+       headers: { cookie: req.headers.get('cookie')! },
+       credentials: 'include', });
     if (!res.ok) {
       const text = await res.text();
       return NextResponse.json({ error: text }, { status: res.status });

@@ -79,13 +79,9 @@ async deleteDocument(id: string, userId: string): Promise<{ success: boolean }> 
 /**
  * Fetch a single document by id.
  */
-async findOne(id: string) {
-  const doc = await this.prisma.document.findUnique({
-    where: { id },
-  });
-  if (!doc) {
-    throw new NotFoundException(`Document ${id} not found`);
-  }
+async findOne(id: string, userId: string) {
+  const doc = await this.prisma.document.findUnique({ where: { id } });
+  if (!doc || doc.userId !== userId) throw new NotFoundException();
   return doc;
 }
 
