@@ -1,4 +1,3 @@
-// backend/src/interactions/interactions.controller.ts
 import { Controller, UseGuards, Req, Get, Post, Param, Delete, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { InteractionsService } from './interactions.service';

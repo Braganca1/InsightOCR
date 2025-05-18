@@ -6,7 +6,7 @@ import * as cookieParser  from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: false });
 
-  // 1) Parse cookies so JwtStrategy can read NextAuth’s session-token
+  
   app.use(cookieParser());
 
   // 2) Enable CORS for your Next.js frontend (with credentials)
@@ -15,7 +15,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // 3) (Optional) global DTO validation
+  
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(4000);

@@ -1,4 +1,3 @@
-// frontend/app/page.tsx
 import CTAButtons from '../components/CTAButtons';
 
 export default function HomePage() {

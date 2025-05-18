@@ -1,4 +1,3 @@
-// frontend/app/api/documents/[id]/download/route.ts
 import { NextResponse }   from 'next/server';
 import type { NextRequest } from 'next/server';
 

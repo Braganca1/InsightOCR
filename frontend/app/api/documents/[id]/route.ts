@@ -1,9 +1,7 @@
-// frontend/app/api/documents/[id]/route.ts
 import { NextResponse }    from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL! // e.g. "http://localhost:4000"
-
+const API = process.env.NEXT_PUBLIC_BACKEND_URL! 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

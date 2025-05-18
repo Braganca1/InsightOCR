@@ -25,7 +25,7 @@ export class InteractionsService {
     let answer: string;
     try {
       const res = await this.hf.questionAnswering({
-        model: 'deepset/roberta-base-squad2', // or another QA model available on HuggingFace
+        model: 'deepset/roberta-base-squad2', 
         inputs: {
           question,
           context: doc.extractedText ?? '',

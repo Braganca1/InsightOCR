@@ -1,4 +1,3 @@
-// frontend/app/api/auth/[...nextauth]/route.ts
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider            from 'next-auth/providers/credentials';
 import { PrismaAdapter }             from '@next-auth/prisma-adapter';
@@ -11,10 +10,9 @@ const prisma = new PrismaClient();
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
 
-  // Use JWT session strategy
   session: { strategy: 'jwt' },
 
-  // ─── Disable cookie encryption ────────────────────────────────────────────
+
   cookies: {
     sessionToken: {
       name: 'next-auth.session-token',
@@ -51,10 +49,9 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  // Must match exactly in both front- and back-end env
+
   secret: process.env.NEXTAUTH_SECRET,
 
-  // Send users to your custom pages, not the default UI
   pages: {
     signIn: '/login',
     error:  '/login',

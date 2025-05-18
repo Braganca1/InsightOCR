@@ -17,7 +17,6 @@ export default function UploadPage() {
     const formData = new FormData();
     formData.append('file', file);
 
-    // this hits /api/documents POST, which proxies to /documents/upload
     const res = await fetch('/api/documents', {
       method: 'POST',
       body: formData,
