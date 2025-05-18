@@ -1,4 +1,3 @@
-// frontend/components/UploadForm.tsx
 'use client';
 import React, { useState } from 'react';
 
@@ -7,8 +6,6 @@ interface Props { onUpload: (file: File) => Promise<void> }
 const UploadForm: React.FC<Props> = ({ onUpload }) => {
   const [file, setFile] = useState<File | null>(null);
 
-  // You can still programmatically open the native picker
-  // if you want, but the default label is gone
   const openPicker = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -29,7 +26,6 @@ const UploadForm: React.FC<Props> = ({ onUpload }) => {
 
   return (
     <form onSubmit={submit} className="flex items-center space-x-4">
-      {/* Custom pick button instead of native input label */}
       <button
         type="button"
         onClick={openPicker}
@@ -38,7 +34,8 @@ const UploadForm: React.FC<Props> = ({ onUpload }) => {
         {file ? file.name : 'Choose File…'}
       </button>
 
-      {/* If you still want an explicit upload button: */}
+
+    
       {file && (
         <button
           type="submit"

@@ -11,7 +11,7 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50 h-16">
       <div className="container mx-auto flex items-center justify-between h-full px-6">
         <Link href="/" className="text-2xl font-bold text-purple-600">
-          Paggo
+          InsightOCR
         </Link>
 
         <nav className="space-x-4">
@@ -22,8 +22,8 @@ export default function Navbar() {
           {!session && !loading && (
             <>
               <Link href="/login">
-  <button className="px-4 py-2 border rounded">Sign In</button>
-</Link>
+                <button className="px-4 py-2 border  border-gray-300 rounded-lg hover:bg-gray-100">Sign In</button>
+              </Link>
               <Link href="/register">
                 <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
                   Sign Up

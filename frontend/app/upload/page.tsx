@@ -1,4 +1,3 @@
-// frontend/app/upload/page.tsx
 'use client';
 
 import React, { useState, useCallback } from 'react';
@@ -75,25 +74,15 @@ export default function UploadPage() {
         />
         <div className="flex flex-col items-center justify-center">
           {/* Cloud upload SVG */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-12 w-12 text-gray-400 mb-3"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 15a4 4 0 014-4h3m4 0h3a4 4 0 010 8H7a4 4 0 01-4-4zm9-5v8m0 0l-3-3m3 3l3-3"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
+
           <p className="text-gray-700 font-medium">
             {file ? file.name : 'Drag & drop your file here, or click to select'}
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            Supports PDF, JPEG, PNG (Max 10 MB)
+            Supports JPG, JPEG, PNG (Max 10 MB)
           </p>
         </div>
       </div>

@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server';
+// frontend/app/api/documents/[id]/interactions/route.ts
+import { NextResponse }   from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL!;
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const res = await fetch(`${API}/documents/${params.id}/interactions`, {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  const res = await fetch(`${API}/documents/${id}/interactions`, {
     headers: { cookie: request.headers.get('cookie') || '' },
   });
 
@@ -17,12 +19,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json(interactions);
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   const { question } = await request.json();
-  const res = await fetch(`${API}/documents/${params.id}/interactions`, {
+  const res = await fetch(`${API}/documents/${id}/interactions`, {
     method:  'POST',
     headers: {
-      cookie:          request.headers.get('cookie') || '',
+      cookie:         request.headers.get('cookie') || '',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ question }),

@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 
 
 export const metadata = {
-  title: 'Paggo OCR',
+  title: 'OCR Insight',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -29,13 +29,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {/* Footer */}
           <footer className="bg-white border-t">
             <div className="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm">
-              <span>© 2025 Paggo. All rights reserved.</span>
+              <span>© 2025 InsightOCR. All rights reserved.</span>
               <div className="space-x-4 mt-2 md:mt-0">
                 <Link href="/" className="hover:text-purple-600">
                   Home
-                </Link>
-                <Link href="/contact" className="hover:text-purple-600">
-                  Contact
                 </Link>
               </div>
             </div>

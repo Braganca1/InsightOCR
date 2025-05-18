@@ -1,50 +1,72 @@
 // frontend/components/DocumentList.tsx
-'use client';
+'use client'
 
-import Link from 'next/link';
+import Link from 'next/link'
+import React from 'react'
 
-interface Doc {
-  id: string;
-  originalName: string;
-  extractedText: string;
-  createdAt: string;
+export interface Doc {
+  id: string
+  originalName: string
+  createdAt: string
 }
 
 interface Props {
-  documents: Doc[];
-  onDelete: (id: string) => void;
+  documents: Doc[]
+  onDelete: () => Promise<void>
 }
 
 export default function DocumentList({ documents, onDelete }: Props) {
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="space-y-6">
       {documents.map((doc) => (
-        <li key={doc.id} className="bg-white p-4 rounded-lg shadow">
-          <Link
-            href={`/documents/${doc.id}`}
-            className="text-lg font-semibold text-purple-600 hover:underline"
-          >
-            {doc.originalName}
-          </Link>
-          <p className="text-gray-500 text-sm mb-2">
-            Uploaded on {new Date(doc.createdAt).toLocaleDateString()}
-          </p>
-          <div className="flex space-x-2">
+        <div
+          key={doc.id}
+          className="bg-white rounded-xl shadow p-6 flex justify-between items-center"
+        >
+          <div>
+            <Link
+              href={`/documents/${doc.id}`}
+              className="text-lg font-semibold text-purple-600 hover:underline"
+            >
+              {doc.originalName}
+            </Link>
+            <p className="text-sm text-gray-500">
+              Uploaded on {new Date(doc.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+
+          <div className="flex space-x-3">
+
+            <Link href={`/documents/${doc.id}`}>
+              <button className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-gray-100 transition">
+                View
+              </button>
+            </Link>
+
             <button
-              className="px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
-              onClick={() => onDelete(doc.id)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+              onClick={async () => {
+                if (!confirm('Delete this document?')) return
+                try {
+                  const res = await fetch(`/api/documents/${doc.id}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                  })
+                  if (!res.ok) {
+                    console.error('Delete failed:', await res.text())
+                  } else {
+                    await onDelete()
+                  }
+                } catch (err) {
+                  console.error(err)
+                }
+              }}
             >
               Delete
             </button>
-            <Link
-              href={`/documents/${doc.id}`}
-              className="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
-            >
-              View
-            </Link>
           </div>
-        </li>
+        </div>
       ))}
-    </ul>
-  );
+    </div>
+  )
 }

@@ -1,4 +1,3 @@
-// frontend/components/CTAButtons.tsx
 'use client';
 
 import Link from 'next/link';
@@ -13,13 +12,13 @@ export default function CTAButtons() {
       <div className="flex space-x-4 justify-center">
         <Link
           href="/dashboard"
-          className="px-6 py-3 bg-purple-600 text-white rounded-lg"
+          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
         >
           My Documents
         </Link>
         <Link
           href="/upload"
-          className="px-6 py-3 border border-purple-600 text-purple-600 rounded-lg"
+          className="px-6 py-3 border border-purple-600 text-purple-600 rounded-lg hover:bg-gray-200 transition"
         >
           Upload New
         </Link>
@@ -31,14 +30,13 @@ export default function CTAButtons() {
     <div className="flex space-x-4 justify-center">
       <Link
         href="/register"
-        className="px-6 py-3 bg-purple-600 text-white rounded-lg"
+        className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
       >
         Get Started
       </Link>
 
-      {/* ← Changed from signIn() to Link */}
       <Link href="/login">
-        <button className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg">
+        <button className="px-6 py-3 border border-purple-600 text-purple-600 rounded-lg hover:bg-gray-200 transition">
           Sign In
         </button>
       </Link>

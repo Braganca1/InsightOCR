@@ -1,24 +1,28 @@
-import { NextResponse } from 'next/server';
+// frontend/app/api/documents/[id]/download/route.ts
+import { NextResponse }   from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL!;
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const res = await fetch(`${API}/documents/${params.id}/download`, {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  const res = await fetch(`${API}/documents/${id}/download`, {
     headers: { cookie: request.headers.get('cookie') || '' },
   });
 
   if (!res.ok) {
-    const txt = await res.text();
-    return NextResponse.json({ error: txt }, { status: res.status });
+    const errorText = await res.text();
+    return NextResponse.json({ error: errorText }, { status: res.status });
   }
 
   const arrayBuffer = await res.arrayBuffer();
+  const fileName = `${id}.pdf`;
+
   return new NextResponse(Buffer.from(arrayBuffer), {
     status: 200,
     headers: {
-      'Content-Type':        res.headers.get('content-type')!,
-      'Content-Disposition': res.headers.get('content-disposition')!,
+      'Content-Type':        res.headers.get('content-type') || 'application/pdf',
+      'Content-Disposition': `attachment; filename="${fileName}"`,
     },
   });
 }

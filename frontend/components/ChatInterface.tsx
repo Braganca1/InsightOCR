@@ -9,10 +9,6 @@ interface Interaction {
 
 interface Props {
   documentId: string;
-  /**
-   * show full Q&A history (Conversations tab)
-   * or just recent Q&A pairs (Ask AI card)
-   */
   showHistory?: boolean;
 }
 
@@ -68,12 +64,12 @@ const ChatInterface: React.FC<Props> = ({
       {/* Ask AI mode: show just recent Q&A pairs */}
       {!showHistory && recent.length > 0 && (
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="font-medium mb-2">Recent Q&amp;A</h3>
+          <h3 className="font-medium mb-2">Recent questions</h3>
           <ul className="space-y-2">
             {recent.map((i) => (
               <li key={i.id} className="border-l-4 border-purple-600 pl-3">
-                <p className="text-gray-800 font-semibold">Q: {i.question}</p>
-                <p className="text-gray-700 ml-2">A: {i.answer}</p>
+                <p className="text-black-800"><span className="font-semibold">You:</span> {i.question}</p>
+                <p className="text-black-800"><span className="font-semibold">Insight:</span> {i.answer}</p>
               </li>
             ))}
           </ul>
@@ -88,8 +84,8 @@ const ChatInterface: React.FC<Props> = ({
           ) : (
             history.map((i) => (
               <div key={i.id}>
-                <p className="font-semibold">You: {i.question}</p>
-                <p className="ml-4">Bot: {i.answer}</p>
+                <p className="text-black-100"><span className="font-semibold">You:</span> {i.question}</p>
+                <p className="text-black-100"><span className="font-semibold">Insight:</span> {i.question}</p>
               </div>
             ))
           )}
@@ -109,7 +105,7 @@ const ChatInterface: React.FC<Props> = ({
         <button
           onClick={ask}
           disabled={loading || !question.trim()}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
         >
           {loading ? 'Sending…' : 'Send'}
         </button>
