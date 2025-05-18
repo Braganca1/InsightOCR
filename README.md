@@ -1,50 +1,48 @@
-# Paggo OCR
+# InsightOCR
 
-A full-stack document-intelligence app:
-- **NestJS** backend for OCR (Tesseract) + PDF generation + JWT-protected REST API  
-- **Next.js 13** frontend with App Router, NextAuth (credentials + JWT), Tailwind CSS  
+InsightOCR is a full-stack document-intelligence app that converts images to searchable PDFs and serves them through a secure REST API.
 
----
+## 🔍 Features
 
-## 🚀 Live Demo
+- **Backend (NestJS)**
+  - Tesseract OCR for text extraction  
+  - PDF generation  
+  - JWT-protected REST endpoints  
 
-👉 https://your-vercel-app.vercel.app
-
----
+- **Frontend (Next.js)**
+  - App Router  
+  - NextAuth.js (credentials + JWT)  
+  - Tailwind CSS for styling  
 
 ## 🎯 Prerequisites
 
-- **Node.js** ≥ 18  
+- **Node.js**  
 - **pnpm** (or npm/yarn)  
-- **PostgreSQL** running (or set `DATABASE_URL`)  
-
----
+- **PostgreSQL** running (or set a `DATABASE_URL`)
 
 ## 💾 Local Setup
 
-1. **Clone & Install**  
+1. **Clone the repository**  
    ```bash
-   git clone https://github.com/your-username/paggo-ocr.git
-   cd paggo-ocr
+   git clone https://github.com/Braganca1/InsightOCR.git
+   cd InsightOCR
 
-2. **Backend** 
+2. **Backend**
+    ```bash
+    cd backend
+    cp .env.example .env
+    # Edit .env: set DATABASE_URL & NEXTAUTH_SECRET
+    pnpm install
+    npx prisma generate
+    pnpm run start:dev
 
-cd backend
-cp .env.example .env
-# Edit .env:
-# DATABASE_URL=postgres://user:pass@localhost:5432/yourdb
-# NEXTAUTH_SECRET=some-long-secret
-pnpm install
-npx prisma generate
-pnpm run start:dev
 
 3. **Frontend**
+    ```bash
+    cd ../frontend
+    cp .env.example .env.local
+    # Edit .env.local: set NEXT_PUBLIC_BACKEND_URL, NEXTAUTH_URL & NEXTAUTH_SECRET
+    pnpm install
+    pnpm run dev
 
-cd ../frontend
-cp .env.example .env.local
-# Edit .env.local:
-# NEXT_PUBLIC_BACKEND_URL=http://localhost:3000
-# NEXTAUTH_URL=http://localhost:3000
-# NEXTAUTH_SECRET=same-secret-as-backend
-pnpm install
-pnpm run dev
+Visit http://localhost:3000 to use the app locally.
