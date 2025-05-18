@@ -1,6 +1,6 @@
 # InsightOCR
 
-InsightOCR is a full-stack document-intelligence app that converts images to searchable PDFs and serves them through a secure REST API.
+InsightOCR is a full-stack document-intelligence app that converts images to text and serves them through a secure REST API.
 
 ## 🔍 Features
 
