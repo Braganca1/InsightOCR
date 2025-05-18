@@ -1,42 +1,53 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import DocumentList from '../../components/DocumentList';
+import { useEffect, useState } from 'react';
+import { useSession, signIn }  from 'next-auth/react';
+import DocumentList            from '../../components/DocumentList';
 
-interface Doc { id: string; filename: string; extractedText: string; createdAt: string; originalName: string; }
+interface Doc {
+  id: string;
+  originalName: string;
+  extractedText: string;
+  createdAt: string;
+}
+
 export default function DashboardPage() {
-  const [docs, setDocs] = useState<Doc[]>([]);
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      // redirect to your custom login page
+      void signIn(undefined, { callbackUrl: '/login' });
+    },
+  });
 
-  const fetchDocs = async () => {
-    const res = await fetch('/api/documents');
-    const data: Doc[] = await res.json();
-  setDocs(data);
-  };
+  const [docs, setDocs]       = useState<Doc[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchDocs(); }, []);
+  useEffect(() => {
+    if (status !== 'authenticated') return;
 
-  const handleUpload = async (file: File) => {
-    const formData = new FormData(); formData.append('file', file);
-    await fetch('/api/documents', { method: 'POST', body: formData });
+    const fetchDocs = async () => {
+      setLoading(true);
+      const res = await fetch('/api/documents');
+      if (res.ok) setDocs(await res.json());
+      else console.error('Failed to load docs', await res.text());
+      setLoading(false);
+    };
+
     fetchDocs();
-  };
+  }, [status]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
-    await fetch(`/api/documents/${id}`, { method: 'DELETE' });
-    fetchDocs();
-  };
+  if (status === 'loading') return <p>Loading session…</p>;
 
   return (
-    <>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">My Documents</h2>
-      </div>
-
-      {docs.length > 0 ? (
-        <DocumentList documents={docs} onDelete={handleDelete} />
+    <div className="container mx-auto p-6">
+      <h2 className="text-3xl font-bold mb-4">My Documents</h2>
+      {loading ? (
+        <p>Loading documents…</p>
+      ) : docs.length ? (
+        <DocumentList documents={docs} onDelete={() => window.location.reload()} />
       ) : (
-        <p className="text-center text-gray-500">No documents yet. Upload one to get started!</p>
+        <p>No documents yet. Upload one to get started!</p>
       )}
-    </>
+    </div>
   );
 }

@@ -1,25 +1,25 @@
-// backend/src/main.ts
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { NestFactory }    from '@nestjs/core';
+import { AppModule }      from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser  from 'cookie-parser';
 
 async function bootstrap() {
-  // 1) Create the Nest app
   const app = await NestFactory.create(AppModule, { cors: false });
 
-  // 2) Enable CORS to allow your Next.js frontend to call it
+  // 1) Parse cookies so JwtStrategy can read NextAuth’s session-token
+  app.use(cookieParser());
+
+  // 2) Enable CORS for your Next.js frontend (with credentials)
   app.enableCors({
-    origin: 'http://localhost:3000', // your Next.js URL
-    credentials: true,               // allow cookies (NextAuth session)
+    origin:      'http://localhost:3000',
+    credentials: true,
   });
 
-  // 3) (Optional) Global validation pipe for DTOs
+  // 3) (Optional) global DTO validation
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  // 4) Start listening
-  const port = process.env.PORT || 4000;
-  await app.listen(port);
-  console.log(`Backend listening on http://localhost:${port}`);
+  await app.listen(4000);
+  console.log(`🚀 Backend listening on http://localhost:4000`);
 }
 
 bootstrap();

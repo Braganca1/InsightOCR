@@ -1,39 +1,63 @@
+// frontend/app/api/auth/[...nextauth]/route.ts
 import NextAuth, { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import CredentialsProvider            from 'next-auth/providers/credentials';
+import { PrismaAdapter }             from '@next-auth/prisma-adapter';
+import { PrismaClient }              from '@prisma/client';
+import bcrypt                        from 'bcryptjs';
+import jsonwebtoken                  from 'jsonwebtoken';
 
-// Extend the Session type to include `user.id`
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    };
-  }
-}
-
-// Instantiate PrismaClient for this Next.js route
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
-  // Use Prisma to persist users & sessions
   adapter: PrismaAdapter(prisma),
 
-  // Store session in a JSON Web Token
+  // Use JWT session strategy
   session: { strategy: 'jwt' },
 
-  // Secret must match your NEXTAUTH_SECRET in .env.local
+  // ─── Disable cookie encryption ────────────────────────────────────────────
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        // @ts-ignore: NextAuth’s TS defs don’t expose this flag,
+        // but it will be honored at runtime.
+        encryption: false,
+      },
+    },
+  },
+
+  // We’ll override how NextAuth signs/verifies the JWT
+  jwt: {
+    async encode({ token, secret, maxAge }) {
+      // strip exp/iat so we can set our own
+      const { exp, iat, ...payload } = token as Record<string, any>;
+      return jsonwebtoken.sign(payload, secret!, {
+        algorithm: 'HS256',
+        expiresIn: maxAge,
+      });
+    },
+    async decode({ token, secret }) {
+      if (!token) return null;
+      try {
+        const decoded = jsonwebtoken.verify(token, secret!);
+        return typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
+      } catch {
+        return null;
+      }
+    },
+  },
+
+  // Must match exactly in both front- and back-end env
   secret: process.env.NEXTAUTH_SECRET,
 
-  // Override default NextAuth pages to point at your React ones
+  // Send users to your custom pages, not the default UI
   pages: {
-    signIn: '/login',      // custom login page
-    error: '/login',       // display errors on login page
-    // you can also override signOut, verifyRequest, newUser, etc.
+    signIn: '/login',
+    error:  '/login',
   },
 
   providers: [
@@ -45,37 +69,33 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials) return null;
-        // Look up the user by email
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
         if (!user) return null;
-
-        // Verify password
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
-
-        // Return the user object — NextAuth puts this into the JWT
         return { id: user.id, name: user.name, email: user.email };
       },
     }),
   ],
 
   callbacks: {
-    // Add the user.id into the JWT on sign in
     async jwt({ token, user }) {
       if (user) token.id = user.id;
       return token;
     },
-
-    // Make the `token.id` available as `session.user.id` in the client
     async session({ session, token }) {
-      if (session.user) session.user.id = token.id as string;
-      return session;
+      return {
+        ...session,
+        user: {
+          ...session.user!,
+          id: token.id as string,
+        },
+      };
     },
   },
 };
 
-// Export both GET and POST to handle NextAuth’s routes
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

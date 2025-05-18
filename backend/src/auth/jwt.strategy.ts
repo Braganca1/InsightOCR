@@ -1,34 +1,45 @@
 // backend/src/auth/jwt.strategy.ts
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
+import { Injectable }                from '@nestjs/common';
+import { PassportStrategy }          from '@nestjs/passport';
+import { ExtractJwt, Strategy }      from 'passport-jwt';
+import { Request }                   from 'express';
+import { ConfigService }             from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  // we’ll store it in this property if you ever need it later
-  private readonly configService: ConfigService;
+  constructor(config: ConfigService) {
+    const secret = config.get<string>('NEXTAUTH_SECRET')!;
+    console.log('🔐 JwtStrategy loaded with NEXTAUTH_SECRET =', secret);
 
-  constructor(configService: ConfigService) {
-    // 1) grab the secret from the injected ConfigService
-    const secret = configService.get<string>('NEXTAUTH_SECRET');
-    if (!secret) {
-      throw new Error('NEXTAUTH_SECRET must be defined');
-    }
-
-    // 2) call super() with the options, *before* using `this`
     super({
-      jwtFromRequest:  ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey:     secret,
-    } as StrategyOptions);
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: Request) => {
+          const cookieNames = Object.keys(req.cookies);
+          console.log('🍪 Cookies on request:', cookieNames);
 
-    // 3) now that super() is done, we can assign to `this`
-    this.configService = configService;
+          // Grab the raw token string from whichever cookie is set
+          const raw =
+            req.cookies['next-auth.session-token'] ||
+            req.cookies['__Secure-next-auth.session-token'] ||
+            null;
+
+          if (raw) {
+            console.log('🧩 Raw token snippet:', raw.slice(0, 20) + '…');
+          } else {
+            console.log('⚠️ No session-token cookie found');
+          }
+
+          return raw;
+        },
+      ]),
+      ignoreExpiration: false,
+      secretOrKey:      secret,
+    });
   }
 
   async validate(payload: any) {
-    // This return value is attached to req.user
+    console.log('✅ JWT validated, payload:', payload);
     return { userId: payload.sub, email: payload.email };
   }
 }

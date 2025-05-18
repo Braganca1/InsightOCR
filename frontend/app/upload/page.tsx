@@ -1,27 +1,35 @@
+// frontend/app/upload/page.tsx
 'use client';
+
 import React, { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter }                    from 'next/navigation';
 
 export default function UploadPage() {
   const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile]       = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // handle the actual upload + OCR
+  // handle the actual upload + OCR via our proxy
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
+
     const formData = new FormData();
     formData.append('file', file);
 
-    await fetch('/api/documents', {
+    // this hits /api/documents POST, which proxies to /documents/upload
+    const res = await fetch('/api/documents', {
       method: 'POST',
       body: formData,
     });
 
     setLoading(false);
-    router.push('/dashboard');
+    if (res.ok) {
+      router.push('/dashboard');
+    } else {
+      console.error('Upload failed:', await res.text());
+    }
   };
 
   // drag & drop handlers
@@ -49,7 +57,9 @@ export default function UploadPage() {
       </p>
 
       <div
-      className="relative mb-6 p-8 border-2 border-dashed rounded-lg"
+        className={`relative mb-6 p-8 border-2 border-dashed rounded-lg ${
+          dragOver ? 'border-purple-400' : 'border-gray-300'
+        }`}
         onDragEnter={onDragEnter}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={onDragLeave}
@@ -59,12 +69,12 @@ export default function UploadPage() {
           id="file-input"
           type="file"
           accept="application/pdf,image/*"
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-             disabled={!!file} 
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          disabled={!!file}
           onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
         />
         <div className="flex flex-col items-center justify-center">
-          {/* Simple cloud-upload SVG */}
+          {/* Cloud upload SVG */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-12 w-12 text-gray-400 mb-3"
