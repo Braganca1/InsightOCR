@@ -27,7 +27,7 @@ A full-stack document-intelligence app:
    git clone https://github.com/your-username/paggo-ocr.git
    cd paggo-ocr
 
-## Backend 
+2. **Backend** 
 
 cd backend
 cp .env.example .env
@@ -38,7 +38,7 @@ pnpm install
 npx prisma generate
 pnpm run start:dev
 
-## Frontend
+3. **Frontend**
 
 cd ../frontend
 cp .env.example .env.local
