@@ -41,7 +41,7 @@ export default function HomePage() {
             </div>
             <h3 className="font-semibold text-lg mb-2">Upload</h3>
             <p className="text-gray-600">
-              Upload your documents in various formats including JPEG and PNG.
+              Upload your documents in various formats including JPG, JPEG and PNG.
             </p>
           </div>
 
