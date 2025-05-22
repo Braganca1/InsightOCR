@@ -1,0 +1,23 @@
+# Dockerfile
+FROM node:20-alpine
+WORKDIR /app
+
+# 1) Install all dependencies (including dev-deps) so Prisma CLI is available
+COPY package*.json ./
+RUN npm ci
+
+# 2) Generate the Prisma client (requires dev-deps)
+RUN npx prisma generate
+
+# 3) Remove dev-dependencies to slim the image
+RUN npm prune --production
+
+# 4) Copy the rest of the source and build the NestJS app
+COPY . .
+RUN npm run build
+
+# 5) Expose the application port
+EXPOSE 4000
+
+# 6) Run the compiled application
+CMD ["node", "dist/main.js"]
