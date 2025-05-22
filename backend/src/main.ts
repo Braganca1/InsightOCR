@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser  from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: false });
+  const app = await NestFactory.create(AppModule);
 
   
   app.use(cookieParser());
@@ -18,8 +18,9 @@ async function bootstrap() {
   
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  await app.listen(process.env.PORT || 4000);
-  console.log(`🚀 Backend listening`);
+  const port = parseInt(process.env.PORT || '4000', 10);
+  await app.listen(port);
+  console.log(`🚀 Backend listening on port ${port}`);
 }
 
 bootstrap();
