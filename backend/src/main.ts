@@ -18,8 +18,8 @@ async function bootstrap() {
   
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  await app.listen(4000);
-  console.log(`🚀 Backend listening on http://localhost:4000`);
+  await app.listen(process.env.PORT || 4000);
+  console.log(`🚀 Backend listening`);
 }
 
 bootstrap();
