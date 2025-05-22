@@ -31,7 +31,7 @@ InsightOCR is a full-stack document-intelligence app that converts images to tex
     ```bash
     cd backend
     cp .env.example .env
-    # Edit .env: set DATABASE_URL & NEXTAUTH_SECRET
+    # Edit .env: set DATABASE_URL, HF_API_TOKEN & NEXTAUTH_SECRET
     pnpm install
     npx prisma generate
     pnpm run start:dev
@@ -41,7 +41,7 @@ InsightOCR is a full-stack document-intelligence app that converts images to tex
     ```bash
     cd ../frontend
     cp .env.example .env.local
-    # Edit .env.local: set NEXT_PUBLIC_BACKEND_URL, NEXTAUTH_URL & NEXTAUTH_SECRET
+    # Edit .env.local: set DATABASE_URL, NEXT_PUBLIC_BACKEND_URL, NEXTAUTH_URL & NEXTAUTH_SECRET
     pnpm install
     pnpm run dev
 

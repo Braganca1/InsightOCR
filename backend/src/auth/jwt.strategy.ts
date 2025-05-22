@@ -1,42 +1,31 @@
-import { Injectable }                from '@nestjs/common';
-import { PassportStrategy }          from '@nestjs/passport';
-import { ExtractJwt, Strategy }      from 'passport-jwt';
-import { Request }                   from 'express';
-import { ConfigService }             from '@nestjs/config';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy }                from '@nestjs/passport';
+import { ExtractJwt, Strategy }            from 'passport-jwt';
+import { Request }                         from 'express';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(config: ConfigService) {
-    const secret = config.get<string>('NEXTAUTH_SECRET')!;
-    console.log('JwtStrategy loaded with NEXTAUTH_SECRET =', secret);
-
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+  constructor() {
     super({
+      // look for the token in the cookie
       jwtFromRequest: ExtractJwt.fromExtractors([
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
         (req: Request) => {
-          const cookieNames = Object.keys(req.cookies);
-          console.log('Cookies on request:', cookieNames);
-          const raw =
+          return (
             req.cookies['next-auth.session-token'] ||
             req.cookies['__Secure-next-auth.session-token'] ||
-            null;
-
-          if (raw) {
-            console.log('Raw token snippet:', raw.slice(0, 20) + '…');
-          } else {
-            console.log('No session-token cookie found');
-          }
-
-          return raw;
+            null
+          );
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey:      secret,
+      // VERY IMPORTANT: read the exact same secret you use in NextAuth
+      secretOrKey: process.env.NEXTAUTH_SECRET,
     });
   }
 
-  async validate(payload: any) {
-    console.log('JWT validated, payload:', payload);
+  validate(payload: any) {
+    // If the secret was wrong, you'd never get here.
+    // You can throw UnauthorizedException() if payload is malformed.
     return { userId: payload.sub, email: payload.email };
   }
 }
