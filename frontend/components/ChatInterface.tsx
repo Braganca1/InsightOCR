@@ -23,7 +23,8 @@ const ChatInterface: React.FC<Props> = ({
   // Load all interactions on mount
   useEffect(() => {
     if (!documentId) return;
-    fetch(`/api/documents/${documentId}/interactions`)
+    fetch(`/api/documents/${documentId}/interactions`, {
+      credentials: 'include'})
       .then((res) => res.json())
       .then((data: Interaction[]) => setHistory(data))
       .catch(console.error);
@@ -38,6 +39,7 @@ const ChatInterface: React.FC<Props> = ({
         `/api/documents/${documentId}/interactions`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question }),
         }

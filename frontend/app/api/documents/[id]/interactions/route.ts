@@ -7,6 +7,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   const { id } = await context.params;
   const res = await fetch(`${API}/documents/${id}/interactions`, {
     headers: { cookie: request.headers.get('cookie') || '' },
+    credentials: 'include'
   });
 
   if (!res.ok) {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       cookie:         request.headers.get('cookie') || '',
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify({ question }),
   });
 

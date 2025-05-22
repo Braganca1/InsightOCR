@@ -5,6 +5,7 @@ const API = process.env.NEXT_PUBLIC_BACKEND_URL!;
 export async function GET(request: NextRequest) {
   const res = await fetch(`${API}/documents`, {
     headers: { cookie: request.headers.get('cookie') || '' },
+    credentials: 'include'
   });
 
   if (!res.ok) {

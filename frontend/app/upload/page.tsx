@@ -19,6 +19,7 @@ export default function UploadPage() {
 
     const res = await fetch('/api/documents', {
       method: 'POST',
+      credentials: 'include',
       body: formData,
     });
 

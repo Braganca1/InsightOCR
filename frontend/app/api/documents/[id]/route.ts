@@ -4,10 +4,11 @@ import type { NextRequest } from 'next/server'
 const API = process.env.NEXT_PUBLIC_BACKEND_URL! 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   // forward NextAuth cookie so Nest can authorize
-  const res = await fetch(`${API}/documents/${params.id}`, {
+  const res = await fetch(`${API}/documents/${id}`, {
     headers: { cookie: request.headers.get('cookie') || '' },
     credentials: 'include',
   })
@@ -25,14 +26,17 @@ export async function GET(
 
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const res = await fetch(`${API}/documents/${params.id}`, {
+  // await the params Promise, then pull out `id`
+  const { id } = await params;
+
+  const res = await fetch(`${API}/documents/${id}`, {
     method: 'DELETE',
     headers: { cookie: request.headers.get('cookie') || '' },
     credentials: 'include',
-  })
+  });
 
   if (!res.ok) {
     const err = await res.text()

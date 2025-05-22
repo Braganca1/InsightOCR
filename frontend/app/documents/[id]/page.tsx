@@ -25,7 +25,7 @@ export default function DocumentPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/documents/${id}`)
+    fetch(`/api/documents/${id}`, {credentials: 'include'})
       .then((res) => res.json())
       .then((data: Document) => setDoc(data))
       .catch(console.error);

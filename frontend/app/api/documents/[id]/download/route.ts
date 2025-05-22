@@ -7,6 +7,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   const { id } = await context.params;
   const res = await fetch(`${API}/documents/${id}/download`, {
     headers: { cookie: request.headers.get('cookie') || '' },
+    credentials: 'include'
   });
 
   if (!res.ok) {
