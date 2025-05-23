@@ -17,7 +17,7 @@ InsightOCR is a full-stack document-intelligence app that converts images to tex
 ## 🎯 Prerequisites
 
 - **Node.js**  
-- **pnpm** (or npm/yarn)  
+- **npm**  
 - **PostgreSQL** running (or set a `DATABASE_URL`)
 
 ## 💾 Local Setup
@@ -32,17 +32,15 @@ InsightOCR is a full-stack document-intelligence app that converts images to tex
     cd backend
     cp .env.example .env
     # Edit .env: set DATABASE_URL, HF_API_TOKEN & NEXTAUTH_SECRET
-    pnpm install
+    npm install
     npx prisma generate
-    pnpm run start:dev
+    npm run start:dev
 
 
 3. **Frontend**
     ```bash
     cd ../frontend
-    cp .env.example .env.local
+    cp .env.local.example .env.local
     # Edit .env.local: set DATABASE_URL, NEXT_PUBLIC_BACKEND_URL, NEXTAUTH_URL & NEXTAUTH_SECRET
-    pnpm install
-    pnpm run dev
-
-Visit http://localhost:3000 to use the app locally.
+    npm install
+    npm run dev
